@@ -22,12 +22,23 @@ class ServiceFactory
 
     public function get($service)
     {
-        if (!array_key_exists($service, self::$services)) {
-            throw new \InvalidArgumentException(sprintf('The service "%s" is not available. Pick one among "%s".', $service, implode('", "', array_keys(self::$services))));
+        $services = $this->getServices();
+
+        if (!array_key_exists($service, $services)) {
+            $servicesString = implode('", "', array_keys($services));
+
+            throw new \InvalidArgumentException(
+                sprintf('The service "%s" is not available. Pick one among "%s".', $service, $servicesString)
+            );
         }
 
-        $class = self::$services[$service];
+        $class = $services[$service];
 
         return new $class($this->client);
+    }
+
+    protected function getServices()
+    {
+        return array_merge(self::$services, static::$services);
     }
 }
